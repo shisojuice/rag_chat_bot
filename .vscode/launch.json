@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: app.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: rag_chain.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/rag_chain.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Streamlit: app.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/.venv/Scripts/streamlit.exe",
+            "args": [
+                "run",
+                "${workspaceFolder}/app.py"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}

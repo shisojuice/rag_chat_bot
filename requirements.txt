@@ -1,0 +1,9 @@
+streamlit
+langchain
+faiss-cpu
+openai
+gemini-api
+python-dotenv
+PyPDF2
+pandas
+openpyxl
