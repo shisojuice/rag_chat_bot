@@ -7,3 +7,6 @@ python-dotenv
 PyPDF2
 pandas
 openpyxl
+langchain-openai
+langchain_community
+sentence-transformers

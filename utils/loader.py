@@ -7,13 +7,9 @@ import os
 from langchain.vectorstores import FAISS
 from utils.embedding import get_embedding_model
 
-VECTOR_DIR = "vector"
-DOCS_DIR = "docs"
-
-os.makedirs(VECTOR_DIR, exist_ok=True)
-os.makedirs(DOCS_DIR, exist_ok=True)
-
 def save_and_embed_files(uploaded_files):
+    VECTOR_DIR = os.environ["VECTOR_STORE_PATH"]
+    DOCS_DIR = os.environ["DOCUMENT_PATH"]
     embedding_model = get_embedding_model()
     docs = []
     for uploaded_file in uploaded_files:

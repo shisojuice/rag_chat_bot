@@ -8,8 +8,6 @@ from utils.embedding import get_embedding_model
 from utils.model_selector import get_llm
 import pickle
 
-VECTOR_DIR = "vector"
-
 class RAGChatBot:
     def __init__(self, model_name):
         load_dotenv()
@@ -19,8 +17,7 @@ class RAGChatBot:
         self.vectorstore = self.load_vectorstore()
 
     def load_vectorstore(self):
-        if not os.path.exists(VECTOR_DIR):
-            os.makedirs(VECTOR_DIR)
+        VECTOR_DIR = os.environ["VECTOR_STORE_PATH"]
         index_path = os.path.join(VECTOR_DIR, "faiss_index")
         if os.path.exists(index_path):
             return FAISS.load_local(index_path, self.embedding_model)
