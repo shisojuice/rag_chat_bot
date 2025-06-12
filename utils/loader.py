@@ -21,12 +21,26 @@ def save_and_embed_files(uploaded_files):
         save_path = os.path.join(DOCS_DIR, filename)
         with open(save_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
+        import datetime
+        uploaded_at = datetime.datetime.now().isoformat(timespec='seconds')
         if ext == "pdf":
             loader = PyPDFLoader(save_path)
+            loaded_docs = loader.load()
+            for doc in loaded_docs:
+                doc.metadata["uploaded_at"] = uploaded_at
+            docs.extend(loaded_docs)
         elif ext in ["xlsx", "xls"]:
             loader = UnstructuredExcelLoader(save_path)
+            loaded_docs = loader.load()
+            for doc in loaded_docs:
+                doc.metadata["uploaded_at"] = uploaded_at
+            docs.extend(loaded_docs)
         elif ext in ["txt", "md"]:
             loader = TextLoader(save_path, encoding="utf-8")
+            loaded_docs = loader.load()
+            for doc in loaded_docs:
+                doc.metadata["uploaded_at"] = uploaded_at
+            docs.extend(loaded_docs)
         elif ext in ["csv", "tsv"]:
             sep = "," if ext == "csv" else "\t"
             df = pd.read_csv(save_path, sep=sep, dtype=str)
@@ -34,11 +48,11 @@ def save_and_embed_files(uploaded_files):
             from langchain.schema import Document
             for idx, row in df.iterrows():
                 content = "\t".join([f"{col}: {row[col]}" for col in df.columns])
-                docs.append(Document(page_content=content, metadata={"source": filename, "row": idx, "folder_path": folder_path}))
+                docs.append(Document(page_content=content, metadata={"source": filename, "row": idx, "folder_path": folder_path, "uploaded_at": uploaded_at}))
             continue
         else:
             continue
-        docs.extend(loader.load())
+
     # チャンク分割＋メタデータ付与
     if os.getenv("SEMANTIC_SPLIT", "false").lower() == "true":
         splitter = SemanticTextSplitter(chunk_size=500, chunk_overlap=50)

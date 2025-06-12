@@ -3,6 +3,7 @@ from rag_chain import RAGChatBot
 from utils.model_selector import get_available_models
 import os
 from dotenv import load_dotenv
+import shutil
 
 load_dotenv()
 
@@ -13,6 +14,9 @@ os.makedirs( os.environ["VECTOR_STORE_PATH"], exist_ok=True)
 os.makedirs( os.environ["DOCUMENT_PATH"], exist_ok=True)
 
 st.set_page_config(page_title="社内資料RAG ChatBot", layout="wide")
+
+# ページ切り替え
+page = st.sidebar.radio("ページ選択", ("チャット", "資料管理"), key="page_select")
 st.title("社内資料RAG ChatBot")
 
 # sidebarに仕切りを作成する
@@ -119,32 +123,57 @@ elif embed_model_provider == "huggingface":
 # チャットボット初期化
 bot = RAGChatBot(model_name)
 
-# チャット履歴
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
+if page == "資料管理":
+    st.header("資料アップロード＆管理")
+    # アップロードUI
+    st.subheader("資料アップロード")
+    uploaded_files = st.file_uploader("Txt/Md/Tsv/Csv/Excel/Pdfをアップロード", type=["pdf", "xlsx", "xls", "txt","md", "tsv","csv"], accept_multiple_files=True)
+    if st.button("ベクトル化") and uploaded_files:
+        from utils.loader import save_and_embed_files
+        with st.spinner("ベクトル化中..."):
+            save_and_embed_files(uploaded_files)
+        st.success("ベクトル化完了！")
+    st.markdown("---")
+    st.subheader("登録済み資料一覧")
+    doc_list = bot.list_documents()
+    if not doc_list:
+        st.info("ベクトルストアに資料が登録されていません。")
+    else:
+        import pandas as pd
+        doc_df = pd.DataFrame(doc_list)
+        doc_df = doc_df.drop_duplicates(subset=["source_file", "folder_path", "uploaded_at"])  # 重複排除
+        for i, row in doc_df.iterrows():
+            col1, col2, col3, col4 = st.columns([4, 4, 4, 2])
+            with col1:
+                st.markdown(f"**ファイル名:** `{row['source_file']}`")
+            with col2:
+                st.markdown(f"**フォルダパス:** `{row['folder_path']}`")
+            with col3:
+                st.markdown(f"**アップロード日時:** `{row['uploaded_at']}`")
+            with col4:
+                if st.button("削除", key=f"delete_{row['source_file']}_{row['folder_path']}_{row['uploaded_at']}"):
+                    # ファイル削除処理
+                    file_path = os.path.join(os.environ["DOCUMENT_PATH"], row['source_file'])
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    st.success(f"{row['source_file']} を削除しました。ベクトルストアを再構築してください。")
+        st.warning("資料を削除した場合、再度ベクトル化ボタンを押してベクトルストアを再構築してください。")
 
-# 入力
-user_input = st.text_input("質問を入力してください", key="input")
-if st.button("送信") and user_input:
-    with st.spinner("回答生成中..."):
-        answer = bot.ask(user_input)
-        st.session_state["messages"].append((user_input, answer))
+else:
+    # sidebarに仕切りを作成する
+    st.sidebar.markdown("---")       
+    # チャット履歴
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
 
-# 履歴表示
-for q, a in reversed(st.session_state["messages"]):
-    st.markdown(f"**Q:** {q}")
-    st.markdown(f"**A:** {a}")
+    # 入力
+    user_input = st.text_input("質問を入力してください", key="input")
+    if st.button("送信") and user_input:
+        with st.spinner("回答生成中..."):
+            answer = bot.ask(user_input)
+            st.session_state["messages"].append((user_input, answer))
 
-
-# sidebarに仕切りを作成する
-st.sidebar.markdown("---")       
-# ファイルアップロード
-st.sidebar.header("資料アップロード")
-uploaded_files = st.sidebar.file_uploader("Txt/Md/Tsv/Csv/Excel/Pdfをアップロード", type=["pdf", "xlsx", "xls", "txt","md", "tsv","csv"], accept_multiple_files=True)
-if st.sidebar.button("ベクトル化") and uploaded_files:
-    from utils.loader import save_and_embed_files
-    with st.spinner("ベクトル化中..."):
-        save_and_embed_files(uploaded_files)
-    st.sidebar.success("ベクトル化完了！")
-
-
+    # 履歴表示
+    for q, a in reversed(st.session_state["messages"]):
+        st.markdown(f"**Q:** {q}")
+        st.markdown(f"**A:** {a}")

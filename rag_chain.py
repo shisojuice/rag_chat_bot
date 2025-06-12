@@ -16,6 +16,26 @@ class RAGChatBot:
         self.embedding_model = get_embedding_model()
         self.vectorstore = self.load_vectorstore()
 
+    def list_documents(self):
+        """
+        ベクトルストアに保存されている全ドキュメントのファイル名・フォルダパス一覧を返す
+        """
+        if self.vectorstore is None:
+            return []
+        if hasattr(self.vectorstore, 'docs'):
+            docs = self.vectorstore.docs
+        elif hasattr(self.vectorstore, 'documents'):
+            docs = self.vectorstore.documents
+        else:
+            return []
+        results = []
+        for doc in docs:
+            source = doc.metadata.get("source_file") or doc.metadata.get("source") or ""
+            folder = doc.metadata.get("folder_path") or ""
+            uploaded_at = doc.metadata.get("uploaded_at") or ""
+            results.append({"source_file": source, "folder_path": folder, "uploaded_at": uploaded_at})
+        return results
+
     def load_vectorstore(self):
         VECTOR_DIR = os.environ["VECTOR_STORE_PATH"]
         index_path = os.path.join(VECTOR_DIR, "faiss_index")
