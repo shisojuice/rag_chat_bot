@@ -162,9 +162,27 @@ if page == "資料管理":
 else:
     # sidebarに仕切りを作成する
     st.sidebar.markdown("---")       
-    # チャット履歴
+
+    import json
+    CHAT_HISTORY_FILE = "chat_history.json"
+
+    # 履歴の自動ロード
     if "messages" not in st.session_state:
+        if os.path.exists(CHAT_HISTORY_FILE):
+            try:
+                with open(CHAT_HISTORY_FILE, "r", encoding="utf-8") as f:
+                    st.session_state["messages"] = json.load(f)
+            except Exception:
+                st.session_state["messages"] = []
+        else:
+            st.session_state["messages"] = []
+
+    # 履歴全削除ボタン
+    if st.button("チャット履歴を全削除", key="clear_chat_history"):
         st.session_state["messages"] = []
+        if os.path.exists(CHAT_HISTORY_FILE):
+            os.remove(CHAT_HISTORY_FILE)
+        st.success("チャット履歴を削除しました")
 
     # 入力
     user_input = st.text_input("質問を入力してください", key="input")
@@ -172,6 +190,12 @@ else:
         with st.spinner("回答生成中..."):
             answer = bot.ask(user_input)
             st.session_state["messages"].append((user_input, answer))
+        # 保存
+        try:
+            with open(CHAT_HISTORY_FILE, "w", encoding="utf-8") as f:
+                json.dump(st.session_state["messages"], f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            st.warning(f"履歴保存エラー: {e}")
 
     # 履歴表示
     for q, a in reversed(st.session_state["messages"]):
