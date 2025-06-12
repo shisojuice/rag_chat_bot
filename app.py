@@ -15,10 +15,6 @@ os.makedirs( os.environ["DOCUMENT_PATH"], exist_ok=True)
 
 st.set_page_config(page_title="社内資料RAG ChatBot", layout="wide")
 
-# --- NeoBrutalism + DarkMode CSS適用 ---
-with open("neobrutalism.css", encoding="utf-8") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
 # ページ切り替え
 page = st.sidebar.radio("ページ選択", ("チャット", "資料管理"), key="page_select")
 st.title("社内資料RAG ChatBot")
