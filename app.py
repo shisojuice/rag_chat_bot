@@ -34,9 +34,9 @@ def ai_model_settings():
     if model_name == "azure":
         ai_model_inputs["AZURE_OPENAI_API_KEY"] = st.text_input("Azure OpenAI APIキー", type="password", value=st.session_state.get("AZURE_OPENAI_API_KEY", os.getenv("AZURE_OPENAI_API_KEY", "")), key="azure_api_key_page")
         ai_model_inputs["AZURE_OPENAI_ENDPOINT"] = st.text_input("Azure OpenAI エンドポイント", value=st.session_state.get("AZURE_OPENAI_ENDPOINT", os.getenv("AZURE_OPENAI_ENDPOINT", "")), key="azure_endpoint_page")
+        ai_model_inputs["AZURE_OPENAI_MODEL_NAME"] = st.text_input("Azure OpenAI モデル名", value=st.session_state.get("AZURE_OPENAI_MODEL_NAME", os.getenv("AZURE_OPENAI_MODEL_NAME", "gpt-35-turbo")), key="azure_model_name_page")
         ai_model_inputs["AZURE_OPENAI_DEPLOYMENT"] = st.text_input("Azure OpenAI デプロイメント名", value=st.session_state.get("AZURE_OPENAI_DEPLOYMENT", os.getenv("AZURE_OPENAI_DEPLOYMENT", "")), key="azure_deployment_page")
         ai_model_inputs["AZURE_OPENAI_API_VERSION"] = st.text_input("Azure OpenAI APIバージョン", value=st.session_state.get("AZURE_OPENAI_API_VERSION", os.getenv("AZURE_OPENAI_API_VERSION", "2023-05-15")), key="azure_api_version_page")
-        ai_model_inputs["AZURE_OPENAI_MODEL_NAME"] = st.text_input("Azure OpenAI モデル名", value=st.session_state.get("AZURE_OPENAI_MODEL_NAME", os.getenv("AZURE_OPENAI_MODEL_NAME", "gpt-35-turbo")), key="azure_model_name_page")
     if st.button("AIモデル設定を適用", key="ai_model_apply_page"):
         st.session_state["AI_MODEL"] = model_name
         os.environ["AI_MODEL"] = model_name
@@ -44,13 +44,12 @@ def ai_model_settings():
             st.session_state[k] = v
             os.environ[k] = v
         st.success("AIモデル設定を適用しました。")
-    if model_name == "azure":
-        if not ai_model_inputs["AZURE_OPENAI_API_KEY"] or not ai_model_inputs["AZURE_OPENAI_ENDPOINT"] or not ai_model_inputs["AZURE_OPENAI_DEPLOYMENT"] or not ai_model_inputs["AZURE_OPENAI_API_VERSION"] or not ai_model_inputs["AZURE_OPENAI_MODEL_NAME"]:
-            st.warning("Azure OpenAI APIキー、エンドポイント、デプロイメント名、APIバージョン、モデル名を入力してください。")
-
 def embedding_model_settings():
     st.header("埋め込みモデル設定")
     def_embed_provider = st.session_state.get("EMBEDDING_MODEL_PROVIDER", os.getenv("EMBEDDING_MODEL_PROVIDER", "azure"))
+    # 選択肢にない場合は強制的に"azure"にする
+    if def_embed_provider not in ["azure"]:
+        def_embed_provider = "azure"
     embed_model_provider = st.selectbox(
         "埋め込みモデルプロバイダーを選択", 
         ["azure"], 
@@ -61,26 +60,21 @@ def embedding_model_settings():
         default_embed_model = st.session_state.get("EMBEDDING_MODEL", os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"))
     else:
         default_embed_model = st.session_state.get("EMBEDDING_MODEL", os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"))
-    embed_model = st.text_input("埋め込みモデル名", value=default_embed_model, key="embed_model_name_page")
     embed_api_key = ""
     if embed_model_provider == "azure":
         embed_api_key = st.text_input("Azure OpenAI 埋め込みAPIキー", type="password", value=st.session_state.get("AZURE_OPENAI_EMBED_API_KEY", os.getenv("AZURE_OPENAI_EMBED_API_KEY", "")),key="azure_embed_api_key_page")
         embed_endpoint = st.text_input("Azure OpenAI 埋め込みエンドポイント", value=st.session_state.get("AZURE_OPENAI_EMBED_ENDPOINT", os.getenv("AZURE_OPENAI_EMBED_ENDPOINT", "")),key="azure_embed_endpoint_page")
+        embed_model_name = st.text_input("Azure OpenAI 埋め込みモデル名", value=st.session_state.get("AZURE_OPENAI_EMBED_MODEL_NAME", os.getenv("AZURE_OPENAI_EMBED_MODEL_NAME", "text-embedding-3-small")),key="azure_embed_model_name_page")
         embed_deployment = st.text_input("Azure OpenAI 埋め込みデプロイメント名", value=st.session_state.get("AZURE_OPENAI_EMBED_DEPLOYMENT", os.getenv("AZURE_OPENAI_EMBED_DEPLOYMENT", "text-embedding-3-small")),key="azure_embed_deployment_page")
         embed_api_version = st.text_input("Azure OpenAI 埋め込みAPIバージョン", value=st.session_state.get("AZURE_OPENAI_EMBED_API_VERSION", os.getenv("AZURE_OPENAI_EMBED_API_VERSION", "2024-02-01")),key="azure_embed_api_version_page")
-        embed_model_name = st.text_input("Azure OpenAI 埋め込みモデル名", value=st.session_state.get("AZURE_OPENAI_EMBED_MODEL_NAME", os.getenv("AZURE_OPENAI_EMBED_MODEL_NAME", "text-embedding-3-small")),key="azure_embed_model_name_page")
     if st.button("埋め込みモデル設定を適用", key="embed_model_apply_page"):
         st.session_state["EMBEDDING_MODEL_PROVIDER"] = embed_model_provider
         os.environ["EMBEDDING_MODEL_PROVIDER"] = embed_model_provider
-        st.session_state["EMBEDDING_MODEL"] = embed_model
-        os.environ["EMBEDDING_MODEL"] = embed_model
-        if embed_model_provider == "azure":
-            st.session_state["AZURE_OPENAI_EMBED_API_KEY"] = embed_api_key
-            os.environ["AZURE_OPENAI_EMBED_API_KEY"] = embed_api_key
+        for k, v in embed_model_inputs.items():
+            st.session_state[k] = v
+            os.environ[k] = v
         st.success("埋め込みモデル設定を適用しました。")
-    if embed_model_provider == "azure":
-        if not embed_api_key:
-            st.warning("Azure OpenAI 埋め込みAPIキーを入力してください。")
+    
 
 # ページごとにUIを分岐
 if page == "AIモデル設定":
@@ -88,6 +82,8 @@ if page == "AIモデル設定":
 elif page == "埋め込みモデル設定":
     embedding_model_settings()
 else:
+    # AIモデル名をセッションまたは環境変数から取得
+    model_name = st.session_state.get("AI_MODEL", os.getenv("AI_MODEL", "azure"))
     # チャットボット初期化
     bot = RAGChatBot(model_name)
     if page == "資料管理":
