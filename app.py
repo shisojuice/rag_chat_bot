@@ -97,6 +97,13 @@ if embed_model_provider == "openai":
         value=st.session_state.get("OPENAI_EMBED_API_KEY", os.getenv("OPENAI_EMBED_API_KEY", "")),
         key="openai_embed_api_key"
     )
+elif embed_model_provider == "azure":
+    embed_api_key = st.sidebar.text_input(
+        "Azure OpenAI 埋め込みAPIキー", 
+        type="password", 
+        value=st.session_state.get("AZURE_OPENAI_EMBED_API_KEY", os.getenv("AZURE_OPENAI_EMBED_API_KEY", "")),
+        key="azure_embed_api_key"
+    )
 elif embed_model_provider == "huggingface":
     embed_api_key = st.sidebar.text_input(
         "Hugging Face 埋め込みAPIキー", 
@@ -113,6 +120,9 @@ if st.sidebar.button("埋め込みモデル設定を適用"):
     if embed_model_provider == "openai":
         st.session_state["OPENAI_EMBED_API_KEY"] = embed_api_key
         os.environ["OPENAI_EMBED_API_KEY"] = embed_api_key
+    elif embed_model_provider == "azure":
+        st.session_state["AZURE_OPENAI_EMBED_API_KEY"] = embed_api_key
+        os.environ["AZURE_OPENAI_EMBED_API_KEY"] = embed_api_key
     elif embed_model_provider == "huggingface":
         st.session_state["HUGGINGFACE_EMBED_API_KEY"] = embed_api_key
         os.environ["HUGGINGFACE_EMBED_API_KEY"] = embed_api_key
@@ -122,6 +132,9 @@ if st.sidebar.button("埋め込みモデル設定を適用"):
 if embed_model_provider == "openai":
     if not embed_api_key:
         st.sidebar.warning("OpenAI 埋め込みAPIキーを入力してください。")
+elif embed_model_provider == "azure":
+    if not embed_api_key:
+        st.sidebar.warning("Azure OpenAI 埋め込みAPIキーを入力してください。")
 elif embed_model_provider == "huggingface":
     if not embed_api_key:
         st.sidebar.warning("Hugging Face 埋め込みAPIキーを入力してください。")

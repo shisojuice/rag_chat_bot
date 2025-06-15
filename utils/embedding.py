@@ -16,6 +16,14 @@ def get_embedding_model():
             openai_api_key=os.environ.get("OPENAI_API_KEY"),
             model=os.environ.get("EMBEDDING_MODEL", "text-embedding-ada-002")
         )
+    elif provider == "azure":
+        from langchain_openai import AzureOpenAIEmbeddings
+        return AzureOpenAIEmbeddings(
+            azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
+            azure_deployment=os.environ.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT"),
+            api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
+            api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2023-05-15"),
+        )
     elif provider == "huggingface":
         if not huggingface_available:
             raise ImportError("HuggingFaceEmbeddingsを利用するにはlangchain[hub]やsentence-transformersが必要です")
