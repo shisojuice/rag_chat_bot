@@ -60,13 +60,13 @@ def embedding_model_settings():
         default_embed_model = st.session_state.get("EMBEDDING_MODEL", os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"))
     else:
         default_embed_model = st.session_state.get("EMBEDDING_MODEL", os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"))
-    embed_api_key = ""
+    embed_model_inputs = {}
     if embed_model_provider == "azure":
-        embed_api_key = st.text_input("Azure OpenAI 埋め込みAPIキー", type="password", value=st.session_state.get("AZURE_OPENAI_EMBED_API_KEY", os.getenv("AZURE_OPENAI_EMBED_API_KEY", "")),key="azure_embed_api_key_page")
-        embed_endpoint = st.text_input("Azure OpenAI 埋め込みエンドポイント", value=st.session_state.get("AZURE_OPENAI_EMBED_ENDPOINT", os.getenv("AZURE_OPENAI_EMBED_ENDPOINT", "")),key="azure_embed_endpoint_page")
-        embed_model_name = st.text_input("Azure OpenAI 埋め込みモデル名", value=st.session_state.get("AZURE_OPENAI_EMBED_MODEL_NAME", os.getenv("AZURE_OPENAI_EMBED_MODEL_NAME", "text-embedding-3-small")),key="azure_embed_model_name_page")
-        embed_deployment = st.text_input("Azure OpenAI 埋め込みデプロイメント名", value=st.session_state.get("AZURE_OPENAI_EMBED_DEPLOYMENT", os.getenv("AZURE_OPENAI_EMBED_DEPLOYMENT", "text-embedding-3-small")),key="azure_embed_deployment_page")
-        embed_api_version = st.text_input("Azure OpenAI 埋め込みAPIバージョン", value=st.session_state.get("AZURE_OPENAI_EMBED_API_VERSION", os.getenv("AZURE_OPENAI_EMBED_API_VERSION", "2024-02-01")),key="azure_embed_api_version_page")
+        embed_model_inputs["AZURE_OPENAI_EMBED_API_KEY"] = st.text_input("Azure OpenAI 埋め込みAPIキー", type="password", value=st.session_state.get("AZURE_OPENAI_EMBED_API_KEY", os.getenv("AZURE_OPENAI_EMBED_API_KEY", "")),key="azure_embed_api_key_page")
+        embed_model_inputs["AZURE_OPENAI_EMBED_ENDPOINT"] = st.text_input("Azure OpenAI 埋め込みエンドポイント", value=st.session_state.get("AZURE_OPENAI_EMBED_ENDPOINT", os.getenv("AZURE_OPENAI_EMBED_ENDPOINT", "")),key="azure_embed_endpoint_page")
+        embed_model_inputs["AZURE_OPENAI_EMBED_MODEL_NAME"] = st.text_input("Azure OpenAI 埋め込みモデル名", value=st.session_state.get("AZURE_OPENAI_EMBED_MODEL_NAME", os.getenv("AZURE_OPENAI_EMBED_MODEL_NAME", "text-embedding-3-small")),key="azure_embed_model_name_page")
+        embed_model_inputs["AZURE_OPENAI_EMBED_DEPLOYMENT"] = st.text_input("Azure OpenAI 埋め込みデプロイメント名", value=st.session_state.get("AZURE_OPENAI_EMBED_DEPLOYMENT", os.getenv("AZURE_OPENAI_EMBED_DEPLOYMENT", "text-embedding-3-small")),key="azure_embed_deployment_page")
+        embed_model_inputs["AZURE_OPENAI_EMBED_API_VERSION"] = st.text_input("Azure OpenAI 埋め込みAPIバージョン", value=st.session_state.get("AZURE_OPENAI_EMBED_API_VERSION", os.getenv("AZURE_OPENAI_EMBED_API_VERSION", "2024-02-01")),key="azure_embed_api_version_page")
     if st.button("埋め込みモデル設定を適用", key="embed_model_apply_page"):
         st.session_state["EMBEDDING_MODEL_PROVIDER"] = embed_model_provider
         os.environ["EMBEDDING_MODEL_PROVIDER"] = embed_model_provider
