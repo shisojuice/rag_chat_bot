@@ -1,33 +1,16 @@
 import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
-
-# HuggingFace埋め込み用
-try:
-    from langchain_community.embeddings import HuggingFaceEmbeddings
-    huggingface_available = True
-except ImportError:
-    huggingface_available = False
     
 def get_embedding_model():
-    provider = os.environ.get("EMBEDDING_MODEL_PROVIDER", "openai").lower()
-    if provider == "openai":
-        return OpenAIEmbeddings(
-            openai_api_key=os.environ.get("OPENAI_API_KEY"),
-            model=os.environ.get("EMBEDDING_MODEL", "text-embedding-ada-002")
-        )
-    elif provider == "azure":
+    provider = os.environ.get("EMBEDDING_MODEL_PROVIDER", "azure").lower()
+    if provider == "azure":
         from langchain_openai import AzureOpenAIEmbeddings
         return AzureOpenAIEmbeddings(
             azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
             azure_deployment=os.environ.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT"),
             api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
-            api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2023-05-15"),
+            api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-01"),
         )
-    elif provider == "huggingface":
-        if not huggingface_available:
-            raise ImportError("HuggingFaceEmbeddingsを利用するにはlangchain[hub]やsentence-transformersが必要です")
-        model_name = os.environ.get("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-        return HuggingFaceEmbeddings(model_name=model_name)
     else:
         raise ValueError(f"未対応の埋め込みモデルプロバイダーです: {provider}")

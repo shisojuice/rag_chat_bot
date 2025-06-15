@@ -47,8 +47,8 @@ class RAGChatBot:
         """
         OpenAIでクエリのパラフレーズ・キーワード拡張を行う
         """
-        try:
-            expander = get_llm("openai")
+        try:    
+            expander = get_llm("azure")
             prompt = f"""
             次の質問を検索に適したキーワードや関連語をカンマ区切りで5つほど抽出してください。
             質問: {query}
@@ -64,7 +64,7 @@ class RAGChatBot:
         OpenAIでqueryと各チャンクの類似度を再計算し、上位順にソート
         """
         try:
-            scorer = get_llm("openai")
+            scorer = get_llm("azure")
             results = []
             for doc, score in docs_and_scores:
                 prompt = f"""
