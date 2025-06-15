@@ -30,19 +30,44 @@ class AzureOpenAILLM(BaseModel):
         return "azureopenai"
 
     def _call(self, prompt, stop=None, run_manager=None):
-        url = f"{self.endpoint}/openai/deployments/{self.deployment}/completions?api-version={self.api_version}"
+        # URLのスラッシュ重複を防ぐ
+        deployment = self.deployment or ""
+        model_name = os.environ.get("AZURE_OPENAI_MODEL_NAME", "")
+        endpoint = (self.endpoint or "").rstrip("/")
+        api_version = self.api_version
         headers = {
             "Content-Type": "application/json",
             "api-key": self.api_key
         }
-        data = {
-            "prompt": prompt,
-            "max_tokens": 512,
-            "temperature": 0
-        }
+        # gpt系モデルはchat/completionsエンドポイント+messages形式
+        if any(x in deployment.lower() for x in ["gpt", "turbo"]) or any(x in model_name.lower() for x in ["gpt", "turbo"]):
+            url = f"{endpoint}/openai/deployments/{deployment}/chat/completions?api-version={api_version}"
+            data = {
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": 512,
+                "temperature": 0
+            }
+        else:
+            url = f"{endpoint}/openai/deployments/{deployment}/completions?api-version={api_version}"
+            data = {
+                "prompt": prompt,
+                "max_tokens": 512,
+                "temperature": 0
+            }
         resp = requests.post(url, headers=headers, json=data)
         resp.raise_for_status()
-        return resp.json()["choices"][0]["text"]
+        # chat形式はchoices[0]["message"]["content"]、completion形式はchoices[0]["text"]
+        result = resp.json()
+        if "choices" in result:
+            if "message" in result["choices"][0]:
+                return result["choices"][0]["message"]["content"]
+            elif "text" in result["choices"][0]:
+                return result["choices"][0]["text"]
+        return str(result)
+
 
 def get_llm(model_name):
     load_dotenv()

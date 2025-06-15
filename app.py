@@ -82,8 +82,12 @@ if page == "AIモデル設定":
 elif page == "埋め込みモデル設定":
     embedding_model_settings()
 else:
-    # AIモデル名をセッションまたは環境変数から取得
+    # AIモデル名をセッションまたは環境変数から取得し、azure以外なら強制的にazureにする
     model_name = st.session_state.get("AI_MODEL", os.getenv("AI_MODEL", "azure"))
+    if model_name != "azure":
+        model_name = "azure"
+        st.session_state["AI_MODEL"] = "azure"
+        os.environ["AI_MODEL"] = "azure"
     # チャットボット初期化
     bot = RAGChatBot(model_name)
     if page == "資料管理":
@@ -96,6 +100,8 @@ else:
             with st.spinner("ベクトル化中..."):
                 save_and_embed_files(uploaded_files)
             st.success("ベクトル化完了！")
+            # ベクトル化直後にRAGChatBotを再生成して最新状態を反映
+            bot = RAGChatBot(model_name)
         st.markdown("---")
         st.subheader("登録済み資料一覧")
         doc_list = bot.list_documents()

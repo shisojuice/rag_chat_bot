@@ -1,0 +1,131 @@
+Python
+1. API キーを使用した認証
+OpenAI API エンドポイントに対して、モデルをデプロイし、エンドポイント URL とサービス認証用の API キーを生成します。このサンプルの場合、エンドポイントとキーは、エンドポイント URL と API キーを保持する文字列です。
+
+API エンドポイントの URL と API キーは、モデルがデプロイされると、[デプロイとエンドポイント] ページで確認できます。
+
+OpenAI SDK で API キーを使用してクライアントを作成する場合は、SDK の構成に API キーを渡してクライアントを初期化します。これにより、OpenAI のサービスに対してシームレスに認証と対話操作を実行できます。
+
+endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.openai.azure.com/"
+model_name = "text-embedding-3-small"
+deployment = "text-embedding-3-small"
+
+api_version = "2024-02-01"
+
+client = AzureOpenAI(
+    api_version="2024-12-01-preview",
+    endpoint=endpoint,
+    credential=AzureKeyCredential("<API_KEY>")
+)
+
+2. 依存関係をインストールする
+PIP を使用して Azure AI Inference SDK をインストールします (必要: Python >=3.8):
+
+pip install openai
+
+3. 基本的なコード サンプルを実行する
+このサンプルでは、埋め込み API の呼び出しを示します。
+
+Azure AI モデル推論エンドポイントと AAD トークンを活用しています。この呼び出しは同期的です。
+
+import os
+from openai import AzureOpenAI
+
+endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.openai.azure.com/"
+model_name = "text-embedding-3-small"
+deployment = "text-embedding-3-small"
+
+api_version = "2024-02-01"
+
+client = AzureOpenAI(
+    api_version="2024-12-01-preview",
+    endpoint=endpoint,
+    credential=AzureKeyCredential("<API_KEY>")
+)
+
+response = client.embeddings.create(
+    input=["first phrase","second phrase","third phrase"],
+    model=deployment
+)
+
+for item in response.data:
+    length = len(item.embedding)
+    print(
+        f"data[{item.index}]: length={length}, "
+        f"[{item.embedding[0]}, {item.embedding[1]}, "
+        f"..., {item.embedding[length-2]}, {item.embedding[length-1]}]"
+    )
+print(response.usage)
+
+
+
+````````````````````````````````````````````````````````````````````````````````````````````````
+JavaScript
+1. API キーを使用した認証
+OpenAI API エンドポイントに対して、モデルをデプロイし、エンドポイント URL とサービス認証用の API キーを生成します。このサンプルの場合、エンドポイントとキーは、エンドポイント URL と API キーを保持する文字列です。
+
+API エンドポイントの URL と API キーは、モデルがデプロイされると、[デプロイとエンドポイント] ページで確認できます。
+
+OpenAI SDK で API キーを使用してクライアントを作成する場合は、SDK の構成に API キーを渡してクライアントを初期化します。これにより、OpenAI のサービスに対してシームレスに認証と対話操作を実行できます。
+
+const apiKey = "<your-api-key>";
+  const apiVersion = "2024-04-01-preview";
+  const deployment = "text-embedding-3-small";
+  const options = { endpoint, apiKey, deployment, apiVersion }
+
+  const client = new AzureOpenAI(options);
+
+2. 依存関係をインストールする
+Node.js  のインストール
+
+次のテキスト行をコピーして、フォルダー内にファイル "package.json" として保存します。
+
+{
+  "type": "module",
+  "dependencies": {
+    "openai": "latest",
+    "@azure/identity": "latest"
+  }
+}
+
+注: @azure/core-sse は、チャット補完応答をストリーミングする場合にのみ必要です。
+
+このフォルダーでターミナル ウィンドウを開き、npm install を実行します。
+
+以下のコード スニペットごとに、コンテンツをファイル "sample.js" にコピーし、ノード sample.js で実行します。
+
+3. 基本的なコード サンプルを実行する
+このサンプルでは、埋め込み API の呼び出しを示します。 Azure AI モデル推論エンドポイントと AAD トークンを活用しています。この呼び出しは同期的です。
+
+import { AzureOpenAI } from "openai";
+
+const endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.openai.azure.com/";
+const modelName = "text-embedding-3-small";
+
+export async function main() {
+
+  const apiKey = "<your-api-key>";
+  const apiVersion = "2024-04-01-preview";
+  const deployment = "text-embedding-3-small";
+  const options = { endpoint, apiKey, deployment, apiVersion }
+
+  const client = new AzureOpenAI(options);
+
+  const response = await client.embeddings.create({
+    input: ["first phrase","second phrase","third phrase"],
+    model: modelName
+  });
+
+  for (const item of response.data) {
+    let length = item.embedding.length;
+    console.log(
+	  `data[$ {item.index}]: length=$ {length}, ` +
+	  `[$ {item.embedding[0]}, $ {item.embedding[1]}, ` +
+	  `..., $ {item.embedding[length - 2]}, $ {item.embedding[length -1]}]`);
+  }
+  console.log(response.usage);
+}
+
+main().catch((err) => {
+  console.error("The sample encountered an error:", err);
+});

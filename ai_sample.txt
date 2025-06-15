@@ -1,0 +1,224 @@
+Python
+開始する
+いくつかのユース ケースのコード スニペットの例を次に示します。Azure OpenAI SDK の詳細については、完全な ドキュメント  と サンプル  を参照してください。
+
+1. API キーを使用した認証
+OpenAI API エンドポイントに対して、モデルをデプロイし、エンドポイント URL とサービス認証用の API キーを生成します。このサンプルの場合、エンドポイントとキーは、エンドポイント URL と API キーを保持する文字列です。
+
+API エンドポイントの URL と API キーは、モデルがデプロイされると、[デプロイとエンドポイント] ページで確認できます。
+
+OpenAI SDK で API キーを使用してクライアントを作成する場合は、SDK の構成に API キーを渡してクライアントを初期化します。これにより、OpenAI のサービスに対してシームレスに認証と対話操作を実行できます。
+
+import os
+from openai import AzureOpenAI
+
+client = AzureOpenAI(
+    api_version="2024-12-01-preview",
+    endpoint="https://XXXXXXXXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/",
+    credential=AzureKeyCredential("<API_KEY>")
+)
+
+2. 依存関係をインストールする
+PIP を使用して Azure Open AI SDK をインストールします (Python 3.8 以降が必要です):
+
+pip install openai
+
+3. 基本的なコード サンプルを実行する
+このサンプルでは、チャット補完 API に対する基本的な呼び出しが実演されています。この呼び出しは同期的です。
+
+import os
+from openai import AzureOpenAI
+
+endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/"
+model_name = "o4-mini"
+deployment = "o4-mini"
+
+subscription_key = "<your-api-key>"
+api_version = "2024-12-01-preview"
+
+client = AzureOpenAI(
+    api_version=api_version,
+    azure_endpoint=endpoint,
+    api_key=subscription_key,
+)
+
+response = client.chat.completions.create(
+    messages=[
+        {
+            "role": "system",
+            "content": "You are a helpful assistant.",
+        },
+        {
+            "role": "user",
+            "content": "I am going to Paris, what should I see?",
+        }
+    ],
+    max_completion_tokens=100000,
+    model=deployment
+)
+
+print(response.choices[0].message.content)
+
+4. その他のサンプルを探す
+マルチターン会話を実行する
+このサンプルでは、チャット補完 API を使用したマルチターン会話が実演されています。チャット アプリケーションにモデルを使用する場合は、その会話の履歴を管理し、最新のメッセージをモデルに送信する必要があります。
+
+import os
+from openai import AzureOpenAI
+
+endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/"
+model_name = "o4-mini"
+deployment = "o4-mini"
+
+subscription_key = "<your-api-key>"
+api_version = "2024-12-01-preview"
+
+client = AzureOpenAI(
+    api_version=api_version,
+    azure_endpoint=endpoint,
+    api_key=subscription_key,
+)
+
+response = client.chat.completions.create(
+    messages=[
+        {
+            "role": "system",
+            "content": "You are a helpful assistant.",
+        },
+        {
+            "role": "user",
+            "content": "I am going to Paris, what should I see?",
+        },
+        {
+            "role": "assistant",
+            "content": "Paris, the capital of France, is known for its stunning architecture, art museums, historical landmarks, and romantic atmosphere. Here are some of the top attractions to see in Paris:\n \n 1. The Eiffel Tower: The iconic Eiffel Tower is one of the most recognizable landmarks in the world and offers breathtaking views of the city.\n 2. The Louvre Museum: The Louvre is one of the world's largest and most famous museums, housing an impressive collection of art and artifacts, including the Mona Lisa.\n 3. Notre-Dame Cathedral: This beautiful cathedral is one of the most famous landmarks in Paris and is known for its Gothic architecture and stunning stained glass windows.\n \n These are just a few of the many attractions that Paris has to offer. With so much to see and do, it's no wonder that Paris is one of the most popular tourist destinations in the world.",
+        },
+        {
+            "role": "user",
+            "content": "What is so great about #1?",
+        }
+    ],
+    max_completion_tokens=100000,
+    model=deployment
+)
+
+print(response.choices[0].message.content)
+
+
+
+````````````````````````````````````````````````````````````````````````````````````````````````
+JavaScript
+1. API キーを使用した認証
+OpenAI API エンドポイントに対して、モデルをデプロイし、エンドポイント URL とサービス認証用の API キーを生成します。このサンプルの場合、エンドポイントとキーは、エンドポイント URL と API キーを保持する文字列です。
+
+API エンドポイントの URL と API キーは、モデルがデプロイされると、[デプロイとエンドポイント] ページで確認できます。
+
+OpenAI SDK で API キーを使用してクライアントを作成する場合は、SDK の構成に API キーを渡してクライアントを初期化します。これにより、OpenAI のサービスに対してシームレスに認証と対話操作を実行できます。
+
+const apiKey = "<your-api-key>";
+const apiVersion = "2024-04-01-preview";
+const endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/";
+const modelName = "o4-mini";
+const deployment = "o4-mini";
+const options = { endpoint, apiKey, deployment, apiVersion }
+
+const client = new AzureOpenAI(options);
+
+2. 依存関係をインストールする
+Node.js  をインストールします。
+
+次のテキスト行をコピーして、フォルダー内にファイル "package.json" として保存します。
+
+{
+  "type": "module",
+  "dependencies": {
+    "openai": "latest",
+    "@azure/identity": "latest"
+  }
+}
+
+注: @azure/core-sse は、チャット補完応答をストリーミングする場合にのみ必要です。
+
+このフォルダーでターミナル ウィンドウを開き、npm install を実行します。
+
+以下のコード スニペットごとに、コンテンツをファイル "sample.js" にコピーし、ノード sample.js で実行します。
+
+このフォルダーでターミナル ウィンドウを開き、npm install を実行します。
+
+以下のコード スニペットごとに、コンテンツをファイル "sample.js" にコピーし、ノード sample.js で実行します。
+
+3. 基本的なコード サンプルを実行する
+このサンプルでは、チャット補完 API に対する基本的な呼び出しが実演されています。この呼び出しは同期的です。
+
+import { AzureOpenAI } from "openai";
+
+const endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/";
+const modelName = "o4-mini";
+const deployment = "o4-mini";
+
+export async function main() {
+
+  const apiKey = "<your-api-key>";
+  const apiVersion = "2024-12-01-preview";
+  const options = { endpoint, apiKey, deployment, apiVersion }
+
+  const client = new AzureOpenAI(options);
+
+  const response = await client.chat.completions.create({
+    messages: [
+      { role:"system", content: "You are a helpful assistant." },
+      { role:"user", content: "I am going to Paris, what should I see?" }
+    ],
+    max_completion_tokens: 100000,
+      model: modelName
+  });
+
+  if (response?.error !== undefined && response.status !== "200") {
+    throw response.error;
+  }
+  console.log(response.choices[0].message.content);
+}
+
+main().catch((err) => {
+  console.error("The sample encountered an error:", err);
+});
+
+4. その他のサンプルを探す
+マルチターン会話を実行する
+このサンプルでは、チャット補完 API を使用したマルチターン会話が実演されています。チャット アプリケーションにモデルを使用する場合は、その会話の履歴を管理し、最新のメッセージをモデルに送信する必要があります。
+
+import { AzureOpenAI } from "openai";
+
+const endpoint = "https://XXXXXXXXXXXXXXXXXXXXXXX.cognitiveservices.azure.com/";
+const modelName = "o4-mini";
+const deployment = "o4-mini";
+
+export async function main() {
+
+  const apiKey = "<your-api-key>";
+  const apiVersion = "2024-12-01-preview";
+  const options = { endpoint, apiKey, deployment, apiVersion }
+
+  const client = new AzureOpenAI(options);
+
+  const response = await client.chat.completions.create({
+    messages: [
+      { role:"system", content: "You are a helpful assistant." },
+      { role:"user", content: "I am going to Paris, what should I see?" }
+    ],
+    max_completion_tokens: 100000,
+      model: modelName
+  });
+
+  if (response?.error !== undefined && response.status !== "200") {
+    throw response.error;
+  }
+
+  for (const choice of response.choices) {
+    console.log(choice.message.content);
+  }
+}
+
+main().catch((err) => {
+  console.error("The sample encountered an error:", err);
+});

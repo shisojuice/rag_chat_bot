@@ -40,7 +40,7 @@ class RAGChatBot:
         VECTOR_DIR = os.environ["VECTOR_STORE_PATH"]
         index_path = os.path.join(VECTOR_DIR, "faiss_index")
         if os.path.exists(index_path):
-            return FAISS.load_local(index_path, self.embedding_model)
+            return FAISS.load_local(index_path, self.embedding_model, allow_dangerous_deserialization=True)
         return None
 
     def expand_query(self, query):
@@ -106,5 +106,5 @@ class RAGChatBot:
 参考資料:
 {context}
 """
-        response = self.llm(prompt)
+        response = self.llm._call(prompt)
         return response
